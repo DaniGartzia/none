@@ -34,10 +34,11 @@ class ComentarioController extends BaseController {
     }
     
     /*-------------------------------------------------------------------
-    Función que carga la lista de archivos conseguida del modelo (Archivo)*/
+    Función que carga la lista de comentarios del proyecto indicado, conseguida del modelo (Archivo)*/
     public function index() {
         //Creamos el objeto 'Comentario'
         $comentario = new Comentario($this->conexion);
+        $comentario->setProyecto($_GET['proyecto']);
         
         //Conseguimos todas los comentarios (lista de los comentarios en BD)
         $listaComentarios = $comentario->getAll();
@@ -63,6 +64,8 @@ class ComentarioController extends BaseController {
 
             $insercion = $comentario->save();
         }
+        
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Mandamos a la vista principal
         header('Location: index.php');
     }
@@ -73,13 +76,30 @@ class ComentarioController extends BaseController {
         //Creamos el objeto solo con el Id y con esto sacaremos todos sus datos de BD
         $comentarioDetalle = new Comentario($this->conexion);
         $comentarioDetalle ->setIdComentario($_GET['idComentario']);
-        $profile = $comentarioDetalle->getProfile();
+        $profile = $comentarioDetalle->getComentarioById();
         
         //Mandamos a la función view() para crear la vista 'detalleComentarioView'
         $this->view('detalleComentario',array(
             "comentario"=>$profile,
             "titulo" => "DETALLE COMENTARIO"
         ));
+    }    
+    
+    /*-------------------------------------------------------------------
+    Función que manda a modificar los datos del comentario seleccionado*/
+    public function modificarDatosComentario() {        
+        //Creamos el objeto completo y lo mandamos a actualizar al modelo
+        $comentarioModificar = new Comentario($this->conexion);
+        $comentarioModificar->setIdComentario($_POST['idComentario']);
+        $comentarioModificar->setContenido($_POST['nuevoContenido']);
+        $comentarioModificar->setFecha($_POST['nuevoFecha']);
+        $comentarioModificar->setEditado($_POST['nuevoEditado']);
+        $comentarioModificar->setParticipante($_POST['nuevoParticipante']);
+        $comentarioModificar->setProyecto($_POST['nuevoProyecto']);
+        $update = $comentarioModificar->update();
+        
+        //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id del comentario para cargar de nuevo 'detalleComentarioView.php' 
+        header('Location: index.php?controller=comentarios&action=verDetalle&idComentario='. $comentarioModificar->getIdComentario());
     }
     
     /*-------------------------------------------------------------------
@@ -88,34 +108,18 @@ class ComentarioController extends BaseController {
         //Creamos el objeto solo con el Id y lo mandamos al modelo para borrar
         $comentarioBorrar = new Comentario($this->conexion);
         $comentarioBorrar ->setIdComentario($_GET['idComentario']);
-        $delete = $comentarioBorrar->delete();
+        $delete = $comentarioBorrar->remove();
         
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Volvemos a cargar index.php
         header('Location: index.php');
     }
     
-    /*-------------------------------------------------------------------
-    Función que manda a modificar los datos del comentario seleccionado*/
-    public function modificarDatosComentario() {
-        //Seleccionamos el id del comentario y se manda para modificarlo a su modelo ('Comentario.php')
-        $idComentario = $_POST['idComentario'];
-        $contenido = $_POST['nuevoContenido'];
-        $fecha = $_POST['nuevoFecha'];
-        $editado = $_POST['nuevoEditado'];
-        $participante = $_POST['nuevoParticipante'];
-        $proyecto = $_POST['nuevoProyecto'];
+    /*------------------------------------------------------------------
+    Función para crear la vista con el nombre que le pasemos y con los datos que le indiquemos*/
+    public function view($vista, $datos) {
+        $data = $datos;
         
-        //Creamos el objeto completo y lo mandamos a actualizar al modelo
-        $comentarioModificar = new Comentario($this->conexion);
-        $comentarioModificar->setIdComentario($idComentario);
-        $comentarioModificar->setContenido($contenido);
-        $comentarioModificar->setFecha($fecha);
-        $comentarioModificar->setEditado($editado);
-        $comentarioModificar->setParticipante($participante);
-        $comentarioModificar->setProyecto($proyecto);
-        $update = $comentarioModificar->updateData();
-        
-        //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id del comentario para cargar de nuevo 'detalleComentarioView.php' 
-        header('Location: index.php?controller=comentarios&action=verDetalle&idComentario='. $comentarioModificar->getIdComentario());
+        require_once __DIR__. '/../view/'. $vista. 'View.php';        
     }
 }

@@ -34,10 +34,11 @@ class TareaController extends BaseController {
     }
     
     /*-------------------------------------------------------------------
-    Función que carga la lista de tareas conseguida del modelo (Tarea)*/
+    Función que carga la lista de tareas del proyecto indicado, conseguida del modelo (Tarea)*/
     public function index() {
         //Creamos el objeto 'Tarea'
         $tarea = new Tarea($this->conexion);
+        $tarea->setProyecto($_GET['proyecto']);
         
         //Conseguimos todas las tareas (lista de las tareas en BD)
         $listaTareas = $tarea->getAll();
@@ -63,6 +64,8 @@ class TareaController extends BaseController {
             $tarea->setProyecto($_POST['proyecto']);            
             $insercion = $tarea->save();
         }
+        
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Mandamos a la vista principal
         header('Location: index.php');
     }
@@ -73,39 +76,18 @@ class TareaController extends BaseController {
         //Creamos el objeto solo con el Id y con esto sacaremos todos sus datos de BD
         $tareaDetalle = new Tarea($this->conexion);
         $tareaDetalle ->setIdTarea($_GET['idTarea']);
-        $profile = $tareaDetalle->getProfile();
+        $profile = $tareaDetalle->getTareaById();
         
         //Mandamos a la función view() para crear la vista 'detalleTareaView'
         $this->view('detalleTarea',array(
             "tarea"=>$profile,
             "titulo" => "DETALLE TAREA"
         ));
-    }
-    
-    /*-------------------------------------------------------------------
-    Función que manda a borrar la tarea seleccionada*/
-    public function borrarTarea() {
-        //Creamos el objeto solo con el Id y lo mandamos al modelo para borrar
-        $tareaBorrar = new Tarea($this->conexion);
-        $tareaBorrar ->setIdTarea($_GET['idTarea']);
-        $delete = $tareaBorrar->delete();
-        
-        //Volvemos a cargar index.php
-        header('Location: index.php');
-    }
+    }    
     
     /*-------------------------------------------------------------------
     Función que manda a modificar los datos de la tarea seleccionada*/
-    public function modificarDatosTarea() {
-        //Seleccionamos el id de la tarea y se manda para modificarlo a su modelo ('Tarea.php')
-        /*$idTarea = $_POST['idTarea'];       
-        $nombreTarea = $_POST['nombreTarea'];
-        $fechaInicioTarea = $_POST['fechaInicioTarea'];
-        $fechaFinTarea = $_POST['fechaFinTarea'];
-        $urgente = $_POST['urgente'];
-        $participante = $_POST['participante'];
-        $proyecto = $_POST['proyecto'];*/
-        
+    public function modificarDatosTarea() {        
         //Creamos el objeto completo y lo mandamos a actualizar al modelo
         $tareaModificar = new Tarea($this->conexion);
         $tareaModificar->setIdTarea($_POST['idTarea']);
@@ -115,9 +97,30 @@ class TareaController extends BaseController {
         $tareaModificar->setUrgente($_POST['urgente']);
         $tareaModificar->setParticipante($_POST['participante']);        
         $tareaModificar->setProyecto($_POST['proyecto']);        
-        $update = $tareaModificar->updateData();
+        $update = $tareaModificar->update();
         
         //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id de la tarea para cargar de nuevo 'detalleTareaView.php' 
         header('Location: index.php?controller=tareas&action=verDetalle&idTarea='. $tareaModificar->getIdTarea());
+    }
+    
+    /*-------------------------------------------------------------------
+    Función que manda a borrar la tarea seleccionada*/
+    public function borrarTarea() {
+        //Creamos el objeto solo con el Id y lo mandamos al modelo para borrar
+        $tareaBorrar = new Tarea($this->conexion);
+        $tareaBorrar ->setIdTarea($_GET['idTarea']);
+        $delete = $tareaBorrar->remove();        
+        
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
+        //Volvemos a cargar index.php
+        header('Location: index.php');
+    }
+    
+    /*------------------------------------------------------------------
+    Función para crear la vista con el nombre que le pasemos y con los datos que le indiquemos*/
+    public function view($vista, $datos) {
+        $data = $datos;
+        
+        require_once __DIR__. '/../view/'. $vista. 'View.php';        
     }
 }

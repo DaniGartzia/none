@@ -9,8 +9,11 @@ class ParticipanteController extends BaseController {
     Función que, según la acción pasada en la url, manda a cada función correspondiente*/
     public function run($accion){
         switch($accion) { 
-            case "index" :
-                $this->index();
+            case "listadoProyectos" :
+                $this->listadoProyectosParticipante();
+                break;
+            case "listadoParticipantes" :
+                $this->listadoParticipantesProyecto();
                 break;
             case "aniadirParticipante" :
                 $this->view('aniadirParticipante', "");
@@ -24,28 +27,44 @@ class ParticipanteController extends BaseController {
             case "eliminar" :
                 $this->borrarParticipante();
                 break;
-            case "modificarParticipante" :
-                $this->modificarDatosParticipante();
-                break;
             default:
-                $this->index();
+                $this->listadoProyectosParticipante();
                 break;
         }
     }
     
     /*-------------------------------------------------------------------
-    Función que carga la lista de participantes conseguida del modelo (Participante)*/
-    public function index() {
+    Función que carga la lista de proyectos en los que está trabajando el participante indicado, conseguida del modelo (Participante)*/
+    public function listadoProyectosParticipante() {
         //Creamos el objeto 'Participante'
-        $participante = new Participante($this->conexion);
+        $proyectoParticipando = new Participante($this->conexion);
+        $proyectoParticipando->setUsuario($_GET['usuario']);
         
-        //Conseguimos todas los participantes (lista de los participantes en BD)
-        $listaParticipantes = $participante->getAll();
+        //Conseguimos todos los proyectos en los que está trabajando el participante indicado
+        $listaProyectosParticipante = $proyectoParticipando->getAllProyectos();
         
-        //Cargamos la vista participantesView.php con la función 'view()' y le pasamos valores (usaremos 'participantes')
-        $this->view('participantes', array(
-            'participantes' => $listaParticipantes,
-            'titulo' => 'PARTICIPANTES'
+        //Cargamos la vista proyectosParticipanteView.php con la función 'view()' y le pasamos valores (usaremos 'proyectosParticipante')
+        $this->view('proyectosParticipante', array(
+            'proyectosParticipante' => $listaProyectosParticipante,
+            'titulo' => 'PROYECTOS DEL PARTICIPANTE'
+        ));
+    }
+
+
+    /*-------------------------------------------------------------------
+    Función que carga la lista de participantes del proyecto indicado conseguida del modelo (Participante)*/
+    public function listadoParticipantesProyecto() {
+        //Creamos el objeto 'Participante'
+        $participanteProyecto = new Participante($this->conexion);
+        $participanteProyecto->setProyecto($_GET['proyecto']);
+        
+        //Conseguimos todos los participantes en el proyecto indicado
+        $listaParticipantesProyecto = $participanteProyecto->getAllParticipantes();
+        
+        //Cargamos la vista participantesEnProyectoView.php con la función 'view()' y le pasamos valores (usaremos 'participantesProyecto')
+        $this->view('participantesEnProyecto', array(
+            'participantesProyecto' => $listaParticipantesProyecto,
+            'titulo' => 'PARTICIPANTES EN PROYECTO'
         ));
     }
     
@@ -59,6 +78,8 @@ class ParticipanteController extends BaseController {
             $participante->setProyecto($_POST['proyecto']);
             $insercion = $participante->save();
         }
+        
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Mandamos a la vista principal
         header('Location: index.php');
     }
@@ -69,7 +90,7 @@ class ParticipanteController extends BaseController {
         //Creamos el objeto solo con el Id y con esto sacaremos todos sus datos de BD
         $participanteDetalle = new Participante($this->conexion);
         $participanteDetalle ->setIdParticipante($_GET['idParticipante']);
-        $profile = $participanteDetalle->getProfile();
+        $profile = $participanteDetalle->getParticipanteById();
         
         //Mandamos a la función view() para crear la vista 'detalleParticipanteView'
         $this->view('detalleParticipante',array(
@@ -84,28 +105,18 @@ class ParticipanteController extends BaseController {
         //Creamos el objeto solo con el Id y lo mandamos al modelo para borrar
         $participanteBorrar = new Participante($this->conexion);
         $participanteBorrar ->setIdParticipante($_GET['idParticipante']);
-        $delete = $participanteBorrar->delete();
+        $delete = $participanteBorrar->remove();
         
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Volvemos a cargar index.php
         header('Location: index.php');
     }
     
-    /*-------------------------------------------------------------------
-    Función que manda a modificar los datos del participante seleccionado*/
-    public function modificarDatosParticipante() {
-        //Seleccionamos el id del participante y se manda para modificarlo a su modelo ('Participante.php')
-        $idParticipante = $_POST['idParticipante'];
-        $usuario = $_POST['nuevoUsuario'];
-        $proyecto = $_POST['nuevoProyecto'];
+    /*------------------------------------------------------------------
+    Función para crear la vista con el nombre que le pasemos y con los datos que le indiquemos*/
+    public function view($vista, $datos) {
+        $data = $datos;
         
-        //Creamos el objeto completo y lo mandamos a actualizar al modelo
-        $participanteModificar = new Participante($this->conexion);
-        $participanteModificar->setIdParticipante($idParticipante);
-        $participanteModificar->setUsuario($usuario);
-        $participanteModificar->setProyecto($proyecto);        
-        $update = $participanteModificar->updateData();
-        
-        //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id del participante para cargar de nuevo 'detalleParticipanteView.php' 
-        header('Location: index.php?controller=participantes&action=verDetalle&idParticipante='. $participanteModificar->getIdParticipante());
+        require_once __DIR__. '/../view/'. $vista. 'View.php';        
     }
 }

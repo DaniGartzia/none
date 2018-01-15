@@ -34,10 +34,11 @@ class ProyectoController extends BaseController {
     }
     
     /*-------------------------------------------------------------------
-    Función que carga la lista de proyectos conseguida del modelo (Proyecto)*/
+    Función que carga la lista de proyectos del usuario indicado en 'responsable', conseguida del modelo (Proyecto)*/
     public function index() {
         //Creamos el objeto 'Proyecto'
         $proyecto = new Proyecto($this->conexion);
+        $proyecto->setResponsable($_GET['responsable']);
         
         //Conseguimos todas los proyectos (lista de los proyectos en BD)
         $listaProyectos = $proyecto->getAll();
@@ -61,6 +62,8 @@ class ProyectoController extends BaseController {
             $proyecto->setResponsable($_POST['responsable']);
             $insercion = $proyecto->save();
         }
+        
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Mandamos a la vista principal
         header('Location: index.php');
     }
@@ -71,13 +74,29 @@ class ProyectoController extends BaseController {
         //Creamos el objeto solo con el Id y con esto sacaremos todos sus datos de BD
         $proyectoDetalle = new Proyecto($this->conexion);
         $proyectoDetalle ->setIdProyecto($_GET['idProyecto']);
-        $profile = $proyectoDetalle->getProfile();
+        $profile = $proyectoDetalle->getProyectoById();
         
         //Mandamos a la función view() para crear la vista 'detalleComentarioView'
         $this->view('detalleProyecto',array(
             "proyecto"=>$profile,
             "titulo" => "DETALLE PROYECTO"
         ));
+    }    
+    
+    /*-------------------------------------------------------------------
+    Función que manda a modificar los datos del proyecto seleccionado*/
+    public function modificarDatosProyecto() {        
+        //Creamos el objeto completo y lo mandamos a actualizar al modelo
+        $proyectoModificar = new Proyecto($this->conexion);
+        $proyectoModificar->setIdProyecto($_POST['idProyecto']);
+        $proyectoModificar->setNombre($_POST['nuevoNombre']);
+        $proyectoModificar->setDescripcion($_POST['nuevoDescripcion']);
+        $proyectoModificar->setFechaInicioProyecto($_POST['nuevoFechaInicioProyecto']);
+        $proyectoModificar->setResponsable($_POST['nuevoResponsable']);
+        $update = $proyectoModificar->update();
+        
+        //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id del proyecto para cargar de nuevo 'detalleProyectoView.php' 
+        header('Location: index.php?controller=proyectos&action=verDetalle&idProyecto='. $proyectoModificar->getIdProyecto());
     }
     
     /*-------------------------------------------------------------------
@@ -86,32 +105,18 @@ class ProyectoController extends BaseController {
         //Creamos el objeto solo con el Id y lo mandamos al modelo para borrar
         $proyectoBorrar = new Proyecto($this->conexion);
         $proyectoBorrar ->setIdProyecto($_GET['idProyecto']);
-        $delete = $proyectoBorrar->delete();
+        $delete = $proyectoBorrar->remove();
         
+        //AQUÍ HABRÁ QUE CARGAR OTRA VISTA, NO LA INDICADA 'index.php' (ARREGLARLO)
         //Volvemos a cargar index.php
         header('Location: index.php');
     }
     
-    /*-------------------------------------------------------------------
-    Función que manda a modificar los datos del proyecto seleccionado*/
-    public function modificarDatosProyecto() {
-        //Seleccionamos el id del proyecto y se manda para modificarlo a su modelo ('Proyecto.php')
-        $idProyecto = $_POST['idProyecto'];
-        $nombre = $_POST['nuevoNombre'];
-        $descripcion = $_POST['nuevoDescripcion'];
-        $fechaInicioProyecto = $_POST['nuevoFechaInicioProyecto'];
-        $responsable = $_POST['nuevoResponsable'];
+    /*------------------------------------------------------------------
+    Función para crear la vista con el nombre que le pasemos y con los datos que le indiquemos*/
+    public function view($vista, $datos) {
+        $data = $datos;
         
-        //Creamos el objeto completo y lo mandamos a actualizar al modelo
-        $proyectoModificar = new Proyecto($this->conexion);
-        $proyectoModificar->setIdProyecto($idProyecto);
-        $proyectoModificar->setNombre($nombre);
-        $proyectoModificar->setDescripcion($Descripcion);
-        $proyectoModificar->setFechaInicioProyecto($fechaInicioProyecto);
-        $proyectoModificar->setResponsable($responsable);
-        $update = $proyectoModificar->updateData();
-        
-        //Volvemos a cargar index.php pasándole los datos del 'controller', 'action' y el id del proyecto para cargar de nuevo 'detalleProyectoView.php' 
-        header('Location: index.php?controller=proyectos&action=verDetalle&idProyecto='. $proyectoModificar->getIdProyecto());
+        require_once __DIR__. '/../view/'. $vista. 'View.php';        
     }
 }
