@@ -1,8 +1,18 @@
 <?php
 
-class ProyectoController extends BaseController {
+class ProyectoController {
+    
+    private $conectar;
+    private $conexion;
+    
     public function __construct() {
+        
+        require_once __DIR__. '/../core/Conectar.php';
+        
         require_once __DIR__. "/../model/Proyecto.php";
+        
+        $this->conectar = new Conectar();
+        $this->conexion = $this->conectar->conexion();
     }
     
     /*-------------------------------------------------------------------
@@ -38,10 +48,17 @@ class ProyectoController extends BaseController {
     public function index() {
         //Creamos el objeto 'Proyecto'
         $proyecto = new Proyecto($this->conexion);
-        $proyecto->setResponsable($_GET['responsable']);
+        
+        //HE COMENTADO LO SIGUIENTE (HARÁ FALTA LUEGO)
+        //$proyecto->setResponsable($_GET['responsable']);
+        
+        //HE PUESTO LO SIGUIENTE PARA COMPROBACION
+        $proyecto->setResponsable(1);
         
         //Conseguimos todas los proyectos (lista de los proyectos en BD)
         $listaProyectos = $proyecto->getAll();
+        
+        //echo 'a ver--> '. $listaProyectos[1]['nombre'];
         
         //Cargamos la vista proyectosView.php con la función 'view()' y le pasamos valores (usaremos 'proyectos')
         $this->view('proyectos', array(
@@ -117,6 +134,6 @@ class ProyectoController extends BaseController {
     public function view($vista, $datos) {
         $data = $datos;
         
-        require_once __DIR__. '/../view/'. $vista. 'View.php';        
+        require_once __DIR__. '/../views/'. $vista. 'View.php';        
     }
 }

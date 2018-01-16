@@ -117,6 +117,6 @@ class ParticipanteController extends BaseController {
     public function view($vista, $datos) {
         $data = $datos;
         
-        require_once __DIR__. '/../view/'. $vista. 'View.php';        
+        require_once __DIR__. '/../views/'. $vista. 'View.php';        
     }
 }
