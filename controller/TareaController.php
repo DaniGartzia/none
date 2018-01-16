@@ -1,7 +1,9 @@
 <?php
+require_once __DIR__ . "/BaseController.php";
 
 class TareaController extends BaseController {
     public function __construct() {
+        parent::__construct();
         require_once __DIR__. "/../model/Tarea.php";
     }
     
@@ -43,11 +45,14 @@ class TareaController extends BaseController {
         //Conseguimos todas las tareas (lista de las tareas en BD)
         $listaTareas = $tarea->getAll();
         
+        //Retornamos la info necesaria para mostrarla en la vista 'detalleProyectoView.php'
+        return $listaTareas;
+        
         //Cargamos la vista tareasView.php con la función 'view()' y le pasamos valores (usaremos 'tareas')
-        $this->view('tareas', array(
+        /*$this->view('tareas', array(
             'tareas' => $listaTareas,
             'titulo' => 'TAREAS'
-        ));
+        ));*/
     }
     
     /*--------------------------------------------------------------

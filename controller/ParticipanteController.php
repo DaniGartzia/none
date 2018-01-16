@@ -1,7 +1,9 @@
 <?php
+require_once __DIR__ . "/BaseController.php";
 
 class ParticipanteController extends BaseController {
     public function __construct() {
+        parent::__construct();
         require_once __DIR__. "/../model/Participante.php";
     }
     

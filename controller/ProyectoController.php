@@ -1,18 +1,11 @@
 <?php
+require_once __DIR__ . "/BaseController.php";
 
-class ProyectoController {
+class ProyectoController extends BaseController {
     
-    private $conectar;
-    private $conexion;
-    
-    public function __construct() {
-        
-        require_once __DIR__. '/../core/Conectar.php';
-        
+    public function __construct() {        
+        parent::__construct();        
         require_once __DIR__. "/../model/Proyecto.php";
-        
-        $this->conectar = new Conectar();
-        $this->conexion = $this->conectar->conexion();
     }
     
     /*-------------------------------------------------------------------
@@ -58,10 +51,8 @@ class ProyectoController {
         //Conseguimos todas los proyectos (lista de los proyectos en BD)
         $listaProyectos = $proyecto->getAll();
         
-        //echo 'a ver--> '. $listaProyectos[1]['nombre'];
-        
         //Cargamos la vista proyectosView.php con la función 'view()' y le pasamos valores (usaremos 'proyectos')
-        $this->view('proyectos', array(
+        $this->view('board', array(
             'proyectos' => $listaProyectos,
             'titulo' => 'PROYECTOS'
         ));
@@ -90,12 +81,19 @@ class ProyectoController {
     public function mostrarDatosProyecto() {
         //Creamos el objeto solo con el Id y con esto sacaremos todos sus datos de BD
         $proyectoDetalle = new Proyecto($this->conexion);
-        $proyectoDetalle ->setIdProyecto($_GET['idProyecto']);
+        $proyectoDetalle ->setIdProyecto($_GET['proyecto']);
         $profile = $proyectoDetalle->getProyectoById();
+        
+        include_once  __DIR__. "/../model/Tarea.php";
+        //$idProyecto = $proyectoDetalle->getIdProyecto();
+        $tareaProyecto = new Tarea($this->conexion);
+        $tareaProyecto->setProyecto($proyectoDetalle->getIdProyecto());
+        $listadoTareasProyecto = $tareaProyecto->getAll();
         
         //Mandamos a la función view() para crear la vista 'detalleComentarioView'
         $this->view('detalleProyecto',array(
             "proyecto"=>$profile,
+            "tareas" => $listadoTareasProyecto,
             "titulo" => "DETALLE PROYECTO"
         ));
     }    

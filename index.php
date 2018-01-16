@@ -35,7 +35,7 @@ function cargarControlador($controller){
             $strFileController='controller/ProyectoController.php';
             require_once $strFileController;
             $controllerObj=new ProyectoController();
-            break; 
+            break;
     }
     return $controllerObj;
 }

@@ -1,7 +1,9 @@
 <?php
+require_once __DIR__ . "/BaseController.php";
 
 class ComentarioController extends BaseController {
     public function __construct() {
+        parent::__construct();
         require_once __DIR__. "/../model/Comentario.php";
     }
     
