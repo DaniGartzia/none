@@ -58,19 +58,39 @@
                 <br>
                 <input type="text" name="descripcionProyecto" class="form-control" value="<?php echo $data['proyecto']->descripcion ?>" disabled />
                 <br>
-                <a href="" class="btn btn-warning btn-sm" title="Modificar Datos" style="width: 176px !important">Modificar Datos</a>
+                <a href="" class="btn btn-warning btn-sm" title="Modificar Datos" style="width: 252px !important">Modificar Datos</a> <!-- antes era 180px -->
                 <br>
                 <hr style="border:1px solid black"/>
                 <h4><strong>Acciones:</strong></h4>
-                <a href="" class="btn btn-success btn-sm" title="Nueva Tarea" style="width: 176px !important">Nueva Tarea</a>
+                <a href="" class="btn btn-success btn-sm" title="Nueva Tarea" style="width: 252px !important">Nueva Tarea</a>
                 <br><br>
-                <a href="" class="btn btn-info btn-sm" title="Ver Participantes" style="width: 176px !important">Ver Participantes</a>
+                <a href="" class="btn btn-info btn-sm" title="Ver Participantes" style="width: 252px !important">Ver Participantes</a>
                 <br><br>
-                <a href="" class="btn btn-info btn-sm" title="Ver Archivos" style="width: 176px !important">Ver Archivos</a>
+                <a href="" class="btn btn-info btn-sm" title="Ver Archivos" style="width: 252px !important">Ver Archivos</a>
                 <br><br>
-                <a href="" class="btn btn-info btn-sm" title="Ver Comentarios" style="width: 176px !important">Ver Comentarios</a>
+                <a href="" class="btn btn-info btn-sm" title="Ver Comentarios" style="width: 252px !important">Ver Comentarios</a>
                 <br><br>
-                <a href="" class="btn btn-danger btn-sm" title="Borrar Proyecto" style="width: 176px !important">Borrar Proyecto</a>
+                <a class="btn btn-danger btn-sm" title="Eliminar Proyecto" data-toggle="modal" data-target="#confirmarEliminacion" style="width: 252px !important">Eliminar Proyecto</a>
+                <!-- Modal para confirmar la eliminación del proyecto -->
+                <div class="modal fade" id="confirmarEliminacion" tabindex="-1" role="dialog" aria-labelledby="confirmarEliminacion" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Confirmar eliminación del proyecto</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <div class="modal-body">
+                            Indique si realmente desea eliminar el proyecto:
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-danger" onclick="location.replace('index.php?controller=proyectos&action=eliminar&idProyecto=<?php echo $data['proyecto']->idProyecto; ?>')">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <br><br>
             </aside>
         </div>		
